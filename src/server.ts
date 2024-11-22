@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes';
 import employeeRoutes from './routes/employeeRoutes';
 import { generalLimiter } from './middleware/rateLimiter';
 import winston from 'winston';
+import bodyParser from 'body-parser';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 connectDB();
+
 
 const logger = winston.createLogger({
     level: 'info',
@@ -30,7 +32,9 @@ app
     .use(helmet())
     .use(express.json())
     .use(cookieParser())
-    .use(generalLimiter);
+    .use(generalLimiter)
+    .use(express.json())
+    .use(bodyParser.urlencoded({ extended: true }));
 
 app
     .use('/api/auth', authRoutes)

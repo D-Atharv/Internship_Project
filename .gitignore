@@ -12,6 +12,9 @@ node_modules/
 # dotenv environment variables file
 .env
 
+#temporary image storage for development mode
+/uploads
+
 # TypeScript
 *.tsbuildinfo
 
