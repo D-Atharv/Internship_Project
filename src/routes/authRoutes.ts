@@ -1,12 +1,12 @@
 import express from 'express';
-import { login, logout, signup } from '../controllers/authController';
+import { login, signup } from '../controllers/authController';
 import { validateUser } from '../middleware/validationMiddleware';
+import { loginLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
 router
-    .post('/signup', signup)
-    .post('/login', validateUser, login)
-    .post('/logout', logout);
+  .post('/signup', signup)
+  .post('/login', loginLimiter, validateUser, login);
 
 export default router;

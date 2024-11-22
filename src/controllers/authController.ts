@@ -4,7 +4,11 @@ import jwt from 'jsonwebtoken';
 import { errorHandler } from '../utils/errorHandler';
 
 const generateToken = (id: string): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: '15m' });
+  const privateKey = process.env.JWT_PRIVATE_KEY as string;
+  return jwt.sign({ id }, privateKey, {
+      algorithm: 'RS256',
+      expiresIn: '15m',
+  });
 };
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
@@ -20,19 +24,14 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const newUser: IUser = await User.create({
       username,
       email,
-      password, 
+      password,
     });
 
     const token = generateToken(newUser._id as string);
 
-    res.cookie('authToken', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
-
     res.status(201).json({
       message: 'User registered successfully',
+      token,
       user: {
         id: newUser._id,
         username: newUser.username,
@@ -53,21 +52,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-    
-    const token = generateToken(user._id as string);
-    res.cookie('authToken', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
 
-    res.status(200).json({ message: 'Login successful' });
+    const token = generateToken(user._id as string);
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+    });
   } catch (error) {
     errorHandler(res, error);
   }
-};
-
-export const logout = (req: Request, res: Response): void => {
-  res.clearCookie('authToken');
-  res.status(200).json({ message: 'Logged out successfully' });
 };
