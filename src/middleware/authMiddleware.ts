@@ -6,9 +6,13 @@ interface JwtPayload {
 }
 
 const verifyToken = (token: string): JwtPayload => {
-  const publicKey = process.env.JWT_PUBLIC_KEY as string;
-  return jwt.verify(token, publicKey, { algorithms: ['RS256'] }) as JwtPayload;
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined in the environment variables.");
+  }
+  return jwt.verify(token, secret) as JwtPayload;
 };
+
 
 export const protect = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
