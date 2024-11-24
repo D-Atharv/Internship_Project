@@ -8,7 +8,7 @@ const router = express.Router();
 router
   .post('/', protect, createEmployee)
   .get('/', protect, cacheMiddleware(60), getEmployees)
-  .put('/:id', updateEmployee)
-  .delete('/:id', deleteEmployee)
+  .put('/:id', protect,updateEmployee)
+  .delete('/:id',protect, deleteEmployee)
 
 export default router;

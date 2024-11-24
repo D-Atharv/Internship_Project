@@ -5,6 +5,10 @@ interface JwtPayload {
   id: string;
 }
 
+export interface RequestWithUser extends Request {
+  user?: any;
+}
+
 const verifyToken = (token: string): JwtPayload => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -14,7 +18,7 @@ const verifyToken = (token: string): JwtPayload => {
 };
 
 
-export const protect = (req: Request, res: Response, next: NextFunction): void => {
+export const protect = (req: RequestWithUser, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -26,7 +30,7 @@ export const protect = (req: Request, res: Response, next: NextFunction): void =
 
   try {
     const decoded = verifyToken(token);
-    (req as Request & { user: string }).user = decoded.id;
+    req.user = decoded;
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid or expired token.' });

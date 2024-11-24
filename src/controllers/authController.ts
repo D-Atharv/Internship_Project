@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User, IUser } from '../models/userModel';
 import jwt from 'jsonwebtoken';
 import { errorHandler } from '../utils/errorHandler';
+import { RequestWithUser } from '../middleware/authMiddleware';
 
 const generateToken = (id: string): string => {
   const secret = process.env.JWT_SECRET;
@@ -71,5 +72,23 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+export const getMe = async (req: RequestWithUser, res: Response): Promise<void> => {
+  try {
+    
+
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
