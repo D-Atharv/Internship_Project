@@ -7,7 +7,7 @@ export interface IEmployee extends Document {
   mobile: string;
   role: string;
   gender: string;
-  course: string[];
+  courses: string[];
   createDate?: Date;
 }
 
@@ -18,7 +18,7 @@ const employeeSchema: Schema<IEmployee> = new Schema({
   mobile: { type: String, required: true },
   role: { type: String, required: true },
   gender: { type: String, required: true },
-  course: { type: [String], required: true },
+  courses: { type: [String], required: true },
   createDate: { type: Date, default: Date.now },
 });
 
