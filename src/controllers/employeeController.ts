@@ -5,16 +5,19 @@ import multer from 'multer';
 const upload = multer({ dest: "uploads/" }); //Adjust later
 
 export const createEmployee = [
-  upload.single("image"), 
+  upload.single("image"),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { name, email, mobile, designation, gender, courses } = req.body;
 
       if (!name || !email || !mobile) {
-         res.status(400).json({ message: "Name, email, and mobile are required." });
+        res.status(400).json({ message: "Name, email, and mobile are required." });
       }
 
       const parsedCourses = typeof courses === "string" ? JSON.parse(courses) : courses;
+
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const imagePath = req.file ? `${baseUrl}/uploads/${req.file.filename}` : undefined;
 
       const employee: IEmployee = new Employee({
         name,
@@ -23,8 +26,9 @@ export const createEmployee = [
         designation,
         gender,
         course: parsedCourses,
-        image: req.file ? req.file.path : undefined, 
+        image: imagePath,
       });
+
 
 
       await employee.save();
@@ -48,7 +52,7 @@ export const getEmployees = async (_req: Request, res: Response): Promise<void> 
 
 export const updateEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
     const { name, email, mobile, designation, gender, courses } = req.body;
 
     const parsedCourses = typeof courses === "string" ? JSON.parse(courses) : courses;
@@ -65,7 +69,7 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
     const employee = await Employee.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { new: true, runValidators: true } 
+      { new: true, runValidators: true }
     );
 
     if (!employee) {

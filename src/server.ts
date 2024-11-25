@@ -34,7 +34,8 @@ app
     .use(cookieParser())
     .use(generalLimiter)
     .use(express.json())
-    .use(bodyParser.urlencoded({ extended: true }));
+    .use(bodyParser.urlencoded({ extended: true }))
+    .use('/uploads', express.static('uploads'));;
 
 app
     .use('/api/auth', authRoutes)
