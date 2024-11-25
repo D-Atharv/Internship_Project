@@ -2,16 +2,16 @@ import { Request, Response } from 'express';
 import { Employee, IEmployee } from '../models/employeeModel';
 import multer from 'multer';
 
-const upload = multer({ dest: "uploads/" }); //Adjust later
+const upload = multer({ dest: "uploads/" }); // Adjust for file uploads
 
 export const createEmployee = [
   upload.single("image"),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { name, email, mobile, designation, gender, courses } = req.body;
+      const { name, email, mobile, role, gender, courses } = req.body;
 
-      if (!name || !email || !mobile) {
-        res.status(400).json({ message: "Name, email, and mobile are required." });
+      if (!name || !email || !mobile || !role) {
+        res.status(400).json({ message: "Name, email, mobile, and role are required." });
       }
 
       const parsedCourses = typeof courses === "string" ? JSON.parse(courses) : courses;
@@ -23,18 +23,16 @@ export const createEmployee = [
         name,
         email,
         mobile,
-        designation,
+        role,
         gender,
         course: parsedCourses,
         image: imagePath,
       });
 
-
-
       await employee.save();
-
       res.status(201).json({ message: "Employee created successfully", employee });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: "Internal server error" });
     }
   },
@@ -45,15 +43,15 @@ export const getEmployees = async (_req: Request, res: Response): Promise<void> 
     const employees: IEmployee[] = await Employee.find();
     res.status(200).json({ employees });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 export const updateEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, email, mobile, designation, gender, courses } = req.body;
+    const { name, email, mobile, role, gender, courses } = req.body;
 
     const parsedCourses = typeof courses === "string" ? JSON.parse(courses) : courses;
 
@@ -61,7 +59,7 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
       ...(name && { name }),
       ...(email && { email }),
       ...(mobile && { mobile }),
-      ...(designation && { designation }),
+      ...(role && { role }),
       ...(gender && { gender }),
       ...(parsedCourses && { course: parsedCourses }),
     };
@@ -73,16 +71,15 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
     );
 
     if (!employee) {
-      res.status(404).json({ message: "Employee not found" });
-      return;
+       res.status(404).json({ message: "Employee not found" });
     }
 
     res.status(200).json({ message: "Employee updated successfully", employee });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 export const deleteEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -91,12 +88,12 @@ export const deleteEmployee = async (req: Request, res: Response): Promise<void>
     const employee = await Employee.findByIdAndDelete(id);
 
     if (!employee) {
-      res.status(404).json({ message: "Employee not found" });
-      return;
+       res.status(404).json({ message: "Employee not found" });
     }
 
     res.status(200).json({ message: "Employee deleted successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

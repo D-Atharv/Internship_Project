@@ -1,14 +1,14 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IEmployee extends Document {
   image?: string;
   name: string;
   email: string;
   mobile: string;
-  designation: string;
+  role: string;
   gender: string;
   course: string[];
-  createDate: Date;
+  createDate?: Date;
 }
 
 const employeeSchema: Schema<IEmployee> = new Schema({
@@ -16,7 +16,7 @@ const employeeSchema: Schema<IEmployee> = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobile: { type: String, required: true },
-  designation: { type: String, required: true },
+  role: { type: String, required: true },
   gender: { type: String, required: true },
   course: { type: [String], required: true },
   createDate: { type: Date, default: Date.now },
